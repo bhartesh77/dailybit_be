@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Starter {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+}
+
+enum QuestionDifficulty {
+  EASY
+  MEDIUM
+  HARD
+}
+
+enum QuestionStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model Question {
+  id             String             @id @default(uuid())
+  text           String
+  difficulty     QuestionDifficulty
+  status         QuestionStatus
+  createdAt      DateTime           @default(now())
+  updatedAt      DateTime           @updatedAt
+  QuestionChoice QuestionChoice[]
+  QuestionTag    QuestionTag[]
+}
+
+model QuestionChoice {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  text       String
+  isCorrect  Boolean
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+enum TagStatus {
+  ACTIVE
+  INACTIVE
+}
+
+model Tag {
+  id          String        @id @default(uuid())
+  name        String
+  status      TagStatus
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  QuestionTag QuestionTag[]
+}
+
+model QuestionTag {
+  id         String   @id @default(uuid())
+  questionId String
+  question   Question @relation(fields: [questionId], references: [id])
+  tagId      String
+  tag        Tag      @relation(fields: [tagId], references: [id])
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
